@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Camera</title>
-    <link rel="stylesheet" href="StyleSheets/camera.css" />
+    <link rel="stylesheet" href="css/camera.css" />
 </head>
 <body>
     <div class="photobooth-container" id="booth">
@@ -12,6 +12,8 @@
     <div class="countdown-timer">3</div>
     <canvas id="finalCanvas" width="1176" height="1470"></canvas>
     <video id="liveVideo" autoplay playsinline muted></video>
+    <!-- overlay frame so user can see framing area while taking photos -->
+    <div class="frame-overlay" aria-hidden="true"></div>
     
     </div>
 
@@ -20,6 +22,6 @@
     <button id="readyButton" disabled style="display: none;">Ready</button>
     </div>
 
-    <script src="Javascripts/camera.js"></script>
-</body>>
+    <script src="js/camera.js"></script>
+</body>
 </html>
