@@ -1,0 +1,12 @@
+
+function loadCapturedPhotos() {
+    const photos = [];
+    const total = parseInt(localStorage.getItem('totalCapturedPhotos') || '0');
+    
+    for (let i = 0; i < total; i++) {
+        const photoData = localStorage.getItem(`capturedPhoto_${i}`);
+        if (photoData) photos.push(photoData);
+    }
+    
+    return photos;
+}
