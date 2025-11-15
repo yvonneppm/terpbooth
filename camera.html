@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Camera</title>
+    <link rel="stylesheet" href="StyleSheets/camera.css" />
+</head>
+<body>
+    <div class="photobooth-container" id="booth">
+    <div class="bubble-container"></div>
+    <div class="countdown-timer">3</div>
+    <canvas id="finalCanvas" width="1176" height="1470"></canvas>
+    <video id="liveVideo" autoplay playsinline muted></video>
+    
+    </div>
+
+    <div class="controls">
+    <button id="takePhoto">Capture</button>
+    <button id="readyButton" disabled style="display: none;">Ready</button>
+    </div>
+
+    <script src="Javascripts/camera.js"></script>
+</body>>
+</html>
