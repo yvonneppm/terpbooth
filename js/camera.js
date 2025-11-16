@@ -1,6 +1,7 @@
-// constants
+ // constants
 const WIDTH = 1100, HEIGHT = 900;
 const FRAME_COUNT = 3; // number of photos to take
+const FRAME_H = Math.floor(HEIGHT / FRAME_COUNT);
 
 // dom elements (will be initialized when DOM is ready)
 let elements = {};
@@ -13,18 +14,7 @@ const setVideoFull = () => {
   const { video } = elements;
   if (!video) return;
   video.style.display = 'block';
-  const setVideoFull = () => {
-  const { video } = elements;
-  if (!video) return;
-  video.style.display = 'block';
 };
-
-};
-window.addEventListener('resize', () => {
-  setVideoFull(); // just triggers display; CSS handles scaling
-});
-
-
 
 // countdown
 const startCountdown = callback => {
@@ -51,12 +41,10 @@ const updateProgress = () => {
   el.textContent = `Photo ${next} of ${FRAME_COUNT}`;
 };
 
-
+// capture photo
 const capturePhoto = () => {
   const { video, takePhotoBtn } = elements;
   const vW = video.videoWidth, vH = video.videoHeight;
-  
-  const FRAME_H = Math.floor(HEIGHT / FRAME_COUNT);
   
   // Use center crop with consistent aspect ratio
   const targetAspect = WIDTH / FRAME_H;
@@ -81,7 +69,15 @@ const capturePhoto = () => {
   const tmp = document.createElement('canvas');
   tmp.width = WIDTH;
   tmp.height = FRAME_H;
-  const tctx = tmp.getContext('2d');
+  const tctx = tmp.getContext('2d', { 
+    alpha: false,
+    colorSpace: 'srgb',
+    willReadFrequently: false
+  });
+  
+  // Fill with black background first to ensure proper color rendering
+  tctx.fillStyle = '#000000';
+  tctx.fillRect(0, 0, WIDTH, FRAME_H);
   
   // draw mirrored into the offscreen canvas
   tctx.save();
@@ -90,7 +86,7 @@ const capturePhoto = () => {
   tctx.drawImage(video, sx, sy, sw, sh, 0, 0, WIDTH, FRAME_H);
   tctx.restore();
   
-  const dataURL = tmp.toDataURL('image/png');
+  const dataURL = tmp.toDataURL('image/jpeg', 0.95); // Use JPEG with high quality
   frames.push(dataURL);
 
   // save each individual photo separately in localStorage
@@ -111,12 +107,16 @@ const capturePhoto = () => {
 
 // finalize photo strip
 const finalizePhotoStrip = () => {
-  const { video, canvas, booth } = elements;
+  const { canvas } = elements;
   
   // Set canvas to proper photo strip dimensions
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { 
+    alpha: true,
+    colorSpace: 'srgb',
+    willReadFrequently: false
+  });
 
   // load each captured frame into an Image
   const imgPromises = frames.map(src => new Promise((res, rej) => {
@@ -127,51 +127,35 @@ const finalizePhotoStrip = () => {
   }));
 
   Promise.all(imgPromises).then(images => {
-    // Clear canvas
+    // Clear canvas (transparent background)
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     
-    // Draw each image stacked vertically with small gaps
-    const gap = 20;
-    const photoHeight = HEIGHT / 2.5;
+    // Draw each image stacked vertically with gaps
+    const gap = 15; // Gap between photos
+    const totalGapSpace = gap * (FRAME_COUNT - 1);
+    const photoHeight = (HEIGHT - totalGapSpace) / FRAME_COUNT;
     
     images.forEach((img, idx) => {
       const yPos = idx * (photoHeight + gap);
       ctx.drawImage(img, 0, yPos, WIDTH, photoHeight);
     });
 
-    // Save to localStorage and navigate
+    // Save photo strip without frame
     try {
-      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-      console.log('Photo strip saved to localStorage');
+      localStorage.setItem('photoStrip', canvas.toDataURL('image/jpeg', 0.95));
     } catch (e) {
-      console.error('Could not save photoStrip', e);
+      console.warn('Could not save photoStrip', e);
     }
     
-    // Navigate to final page
+    // Automatically navigate to the final page
     setTimeout(() => {
       window.location.href = 'final.html';
     }, 100);
     
   }).catch(err => {
     console.error('Error loading captured images', err);
-    // Try to save whatever we have and navigate anyway
-    try {
-      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-    } catch (e) {
-      console.error('Failed to save on error', e);
-    }
-    setTimeout(() => window.location.href = 'final.html', 100);
+    alert('Error creating photo strip. Please try again.');
   });
-};
-
-// download photo
-const downloadPhoto = () => {
-  elements.canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'photo-strip.png';
-    a.click();
-  }, 'image/png');
 };
 
 // setup camera
@@ -200,7 +184,7 @@ const setupCamera = () => {
 
 // setup events
 const setupEventListeners = () => {
-  const { takePhotoBtn, downloadBtn } = elements;
+  const { takePhotoBtn } = elements;
 
   if (takePhotoBtn) {
     takePhotoBtn.addEventListener('click', () => {
@@ -208,16 +192,6 @@ const setupEventListeners = () => {
       if (photoStage >= FRAME_COUNT) return;
       takePhotoBtn.disabled = true;
       startCountdown(capturePhoto);
-    });
-  }
-
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', downloadPhoto);
-  }
-
-  if (elements.readyButton) {
-    elements.readyButton.addEventListener('click', () => {
-      window.location.href = 'final.html';
     });
   }
 
@@ -232,8 +206,6 @@ const initPhotoBooth = () => {
     video: document.getElementById('liveVideo'),
     canvas: document.getElementById('finalCanvas'),
     takePhotoBtn: document.getElementById('takePhoto'),
-    downloadBtn: document.getElementById('downloadBtn'),
-    readyButton: document.getElementById('readyButton'),
     countdownEl: document.querySelector('.countdown-timer'),
     booth: document.getElementById('booth')
   };

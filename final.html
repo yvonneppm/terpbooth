@@ -26,20 +26,22 @@
 			text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 		}
 		.strip-container { 
-			max-width: 400px; 
+			max-width: 500px; 
 			width: 90%; 
 			margin: 16px auto;
-			background: rgba(255,255,255,0.1);
-			padding: 20px;
-			border-radius: 12px;
-			box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+			background: none !important;
+			padding: 0;
+			border-radius: 0;
+			box-shadow: none;
 		}
 		#photoStripImg { 
 			width: 100%; 
 			height: auto; 
 			display: block; 
-			border-radius: 8px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+			border-radius: 0;
+			box-shadow: none;
+			border: none;
+			background: none !important;
 		}
 		.actions { 
 			margin-top: 20px;
@@ -74,8 +76,8 @@
 		<img id="photoStripImg" alt="Photo strip will appear here">
 	</div>
 	<div class="actions">
-		<button id="downloadFinal">Download</button>
-		<button id="retake">Retake</button>
+		<button id="downloadFinal">Download Photo Strip</button>
+		<button id="retake">Retake Photos</button>
 	</div>
 
 	<script>
@@ -102,26 +104,33 @@
 			frameImg.crossOrigin = 'anonymous';
 			
 			frameImg.onload = () => {
-				// Use the frame's dimensions as the canvas size
+				// Use fixed dimensions that match your frame
 				const canvasWidth = 500;
 				const canvasHeight = 1000;
 				
 				const canvas = document.createElement('canvas');
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
-				const ctx = canvas.getContext('2d');
+				const ctx = canvas.getContext('2d', {
+					alpha: true,
+					colorSpace: 'srgb',
+					willReadFrequently: false
+				});
 
-				// Draw photo strip first, centered and filling the canvas
-				const stripWidth = stripImg.naturalWidth;
-				const stripHeight = stripImg.naturalHeight;
+				// Start with completely transparent canvas
+				ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+				// Calculate how to fit the photo strip in the frame
+				// ADJUST THESE VALUES to control where photos appear in the frame
+				const insetX = 35; // pixels from left/right edges
+				const insetY = 85; // pixels from top/bottom edges
 				
-				// Calculate scaling to fit strip inside frame area
-				// Assuming frame has a transparent center - adjust these percentages based on your frame
-				const frameInsetPercent = 0.05; // 5% inset from edges (adjust as needed)
-				const targetWidth = canvasWidth * (1 - frameInsetPercent * 2);
-				const targetHeight = canvasHeight * (1 - frameInsetPercent * 2);
+				const targetWidth = canvasWidth - (insetX * 2);
+				const targetHeight = canvasHeight - (insetY * 2);
 				
 				// Scale strip to fit within target area while maintaining aspect ratio
+				const stripWidth = stripImg.naturalWidth;
+				const stripHeight = stripImg.naturalHeight;
 				const stripAspect = stripWidth / stripHeight;
 				const targetAspect = targetWidth / targetHeight;
 				
@@ -131,15 +140,15 @@
 					// Strip is wider - fit to width
 					drawWidth = targetWidth;
 					drawHeight = targetWidth / stripAspect;
+					drawX = insetX;
+					drawY = insetY + (targetHeight - drawHeight) / 2;
 				} else {
 					// Strip is taller - fit to height
 					drawHeight = targetHeight;
 					drawWidth = targetHeight * stripAspect;
+					drawX = insetX + (targetWidth - drawWidth) / 2;
+					drawY = insetY;
 				}
-				
-				// Center the strip
-				drawX = (canvasWidth - drawWidth) / 2;
-				drawY = (canvasHeight - drawHeight) / 2;
 				
 				// Draw the photo strip
 				ctx.drawImage(stripImg, drawX, drawY, drawWidth, drawHeight);
@@ -147,12 +156,13 @@
 				// Draw the frame on top
 				ctx.drawImage(frameImg, 0, 0, canvasWidth, canvasHeight);
 
-				composedData = canvas.toDataURL('image/png');
+				composedData = canvas.toDataURL('image/jpeg', 0.95);
 				img.src = composedData;
 			};
 			
 			frameImg.onerror = () => {
-				console.warn('Frame image not found, showing strip without frame');
+				console.warn('Frame image not found at: ' + FRAME_URL);
+				console.log('Showing strip without frame');
 				img.src = stripImg.src;
 				composedData = stripImg.src;
 			};
