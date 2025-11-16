@@ -41,6 +41,7 @@ body::before {
 
 /* Decorative frame background */
 .photobooth-container {
+  
     background-image: url('../assets/camerabordercropped.png');
     background-color: rgba(255, 255, 255, 0.02);
     background-size: contain;
@@ -108,11 +109,13 @@ body::before {
 
 /* Controls */
 .controls {
-    text-align: center;
-    margin: 20px auto;
-    position: relative;
-    z-index: 200;
-    margin-top: px;
+    position: fixed;
+    bottom: 20px;       /* distance from bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 button {

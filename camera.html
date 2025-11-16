@@ -8,21 +8,25 @@
 </head>
 <body>
     <div class="photobooth-container" id="booth">
+        <canvas id="finalCanvas" width="1176" height="1470" style="display:none;"></canvas>
+
         <div class="bubble-container"></div>
         <div class="countdown-timer">3</div>
-        <canvas id="finalCanvas" width="1176" height="1470"></canvas>
+
+        <!-- LIVE CAMERA -->
         <video id="liveVideo" autoplay playsinline muted></video>
-        <!-- decorative frame image placed above the live video so the camera border appears in front -->
+
+        <!-- FRAME -->
         <img id="frameImg" class="frame-image" src="assets/camerabordercropped.png" alt="photobooth frame" aria-hidden="true" />
-        <!-- overlay frame so user can see framing area while taking photos -->
         <div class="frame-overlay" aria-hidden="true"></div>
-        <!-- progress indicator (Photo 1 of 3) -->
+
+        <!-- PROGRESS -->
         <div class="photo-progress" aria-live="polite">Photo 1 of 3</div>
     </div>
 
     <div class="controls">
         <button id="takePhoto">SNAP</button>
-        <button id="readyButton" disabled style="display: none;">Ready</button>
+        <button id="readyButton" disabled style="display:none;">Ready</button>
     </div>
 
     <script src="js/camera.js"></script>
