@@ -18,13 +18,14 @@
       background: #111 url('assets/turtlebackground.png') center/cover fixed no-repeat;
     }
     .strip-container {
+      position: relative;
       max-width: 400px;
       width: 90%;
       margin: 16px auto;
-      background: rgba(255,255,255,0.1);
+      /*background: rgba(255,255,255,0.1);*/
+      background: transparent;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .photo-wrapper {
       position: relative;
@@ -33,16 +34,15 @@
     }
     /* Photo fills the frame area behind */
     #photoStripImg {
-  position: absolute;
-  top: 43%;
-  left: 50%;
-  width: 80%;
-  height: 75%;
-  object-fit: cover;
-
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
+      position: absolute;
+      top: 43%;
+      left: 50%;
+      width: 80%;
+      height: 75%;
+      object-fit: cover;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
 
     /* Frame sits on top, unchanged size */
     #frameImg {
@@ -53,13 +53,29 @@
       height: auto;
       pointer-events: none;
     }
+    /*.actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end; /* push buttons to the right */
+    /*  width: 90%;               /* match strip width */
+    /*  top: 100px;
+    }*/
     .actions {
+       position: absolute;
+       bottom: 10px;  /* distance from bottom of the strip */
+       right: 10px;   /* distance from right edge of the strip */
+       display: flex;
+       flex-direction: column; /* stack buttons vertically */
+       gap: 10px;
+    }
+    /*.actions {
       margin-top: 20px;
       text-align: center;
       display: flex;
       gap: 10px;
       justify-content: center;
-    }
+    }*/
     button {
       padding: 12px 24px;
       font-size: 16px;
@@ -98,29 +114,7 @@
     img.style.display = 'none';
   }
 
-  // ⭐⭐ REPLACE YOUR OLD DOWNLOAD CODE WITH THIS ⭐⭐
- /*document.getElementById('downloadFinal').addEventListener('click', () => {
-  const target = document.querySelector('.strip-container');
-
-  html2canvas(target, {
-    backgroundColor: null,          // preserve transparency
-    scale: window.devicePixelRatio, // match rendered pixels
-    useCORS: true                   // if images are loaded from other sources
-  }).then(canvas => {
-    // Convert canvas to a download link
-    canvas.toBlob(blob => {
-      const link = document.createElement('a');
-      link.download = 'photobooth_print.png';
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href); // clean up memory
-    }, 'image/png');
-  }).catch(err => {
-    console.error('Error creating image:', err);
-  });
-});*/
-
-document.getElementById('downloadFinal').addEventListener('click', () => {
+ document.getElementById('downloadFinal').addEventListener('click', () => {
   const target = document.querySelector('.strip-container');
 
   html2canvas(target, {
@@ -151,9 +145,7 @@ document.getElementById('downloadFinal').addEventListener('click', () => {
       URL.revokeObjectURL(link.href);
     }, 'image/png');
   });
-});
-
-
+ });
 
   function loadImage(src) {
     return new Promise((resolve, reject) => {
