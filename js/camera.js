@@ -111,10 +111,9 @@ const capturePhoto = () => {
 
 // finalize photo strip
 const finalizePhotoStrip = () => {
-  const { video, canvas /* keep canvas hidden to avoid UI flash */, booth } = elements;
-  // don't swap visible UI (video -> canvas) here; keep UI unchanged and redirect as soon as
-  // the composed image is saved to localStorage to avoid a brief 'confirm' flash
-  // Set canvas to proper photo strip dimensions (canvas can remain display:none)
+  const { video, canvas, booth } = elements;
+  
+  // Set canvas to proper photo strip dimensions
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   const ctx = canvas.getContext('2d');
@@ -132,7 +131,7 @@ const finalizePhotoStrip = () => {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     
     // Draw each image stacked vertically with small gaps
-    const gap = 20; // Gap between photos
+    const gap = 20;
     const photoHeight = HEIGHT / 2.5;
     
     images.forEach((img, idx) => {
@@ -140,33 +139,28 @@ const finalizePhotoStrip = () => {
       ctx.drawImage(img, 0, yPos, WIDTH, photoHeight);
     });
 
-    // Try to draw decorative frame overlay if available
-    const frame = new Image();
-    //frame.src = 'Assets/fish-photobooth/camerapage/frame.png';
+    // Save to localStorage and navigate
+    try {
+      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
+      console.log('Photo strip saved to localStorage');
+    } catch (e) {
+      console.error('Could not save photoStrip', e);
+    }
     
-    const finishComposing = () => {
-      try {
-        localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-      } catch (e) {
-        console.warn('Could not save photoStrip', e);
-      }
-      // Automatically navigate to the final page instead of showing a confirm button
-      setTimeout(() => {
-        window.location.href = 'final.html';
-      }, 80);
-    };
-    
-    /*frame.onload = () => {
-      ctx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
-      finishComposing();
-    };
-    frame.onerror = finishComposing;
-    if (frame.complete) frame.onload();*/
+    // Navigate to final page
+    setTimeout(() => {
+      window.location.href = 'final.html';
+    }, 100);
     
   }).catch(err => {
     console.error('Error loading captured images', err);
-    localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-    setTimeout(() => window.location.href = 'final.html', 50);
+    // Try to save whatever we have and navigate anyway
+    try {
+      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
+    } catch (e) {
+      console.error('Failed to save on error', e);
+    }
+    setTimeout(() => window.location.href = 'final.html', 100);
   });
 };
 
