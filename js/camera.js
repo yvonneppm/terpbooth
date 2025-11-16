@@ -103,20 +103,13 @@ const capturePhoto = () => {
 
 // finalize photo strip
 const finalizePhotoStrip = () => {
-  const { video, canvas, booth } = elements;
-  video.style.display = 'none';
-  
-  // Set canvas to proper photo strip dimensions
+  const { video, canvas /* keep canvas hidden to avoid UI flash */, booth } = elements;
+  // don't swap visible UI (video -> canvas) here; keep UI unchanged and redirect as soon as
+  // the composed image is saved to localStorage to avoid a brief 'confirm' flash
+  // Set canvas to proper photo strip dimensions (canvas can remain display:none)
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   const ctx = canvas.getContext('2d');
-  
-  // Show canvas
-  if (canvas) canvas.style.display = 'block';
-  if (booth) {
-    booth.style.height = 'auto';
-    booth.style.overflow = 'visible';
-  }
 
   // load each captured frame into an Image
   const imgPromises = frames.map(src => new Promise((res, rej) => {
@@ -144,18 +137,15 @@ const finalizePhotoStrip = () => {
     frame.src = 'Assets/fish-photobooth/camerapage/frame.png';
     
     const finishComposing = () => {
-      try { 
-        localStorage.setItem('photoStrip', canvas.toDataURL('image/png')); 
-      } catch (e) { 
-        console.warn('Could not save photoStrip', e); 
+      try {
+        localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
+      } catch (e) {
+        console.warn('Could not save photoStrip', e);
       }
-      
-      // Show the ready button
-      const readyBtn = document.getElementById('readyButton');
-      if (readyBtn) {
-        readyBtn.style.display = 'inline-block';
-        readyBtn.disabled = false;
-      }
+      // Automatically navigate to the final page instead of showing a confirm button
+      setTimeout(() => {
+        window.location.href = 'final.html';
+      }, 80);
     };
     
     frame.onload = () => {

@@ -27,7 +27,7 @@ body::before {
     position: relative;
     width: 100%;
     max-width: 1100px;
-    height: 900px;
+    height: 800px;
     margin: 20px auto;
     background-image: url('../assets/camerabordercropped.png');
     background-color: rgba(255, 255, 255, 0.02);
@@ -37,29 +37,48 @@ body::before {
     border-radius: 12px;
     padding: 0;
     overflow: hidden;
-    /* ADJUST THIS VALUE to fit video perfectly inside border:
-       - Increase (e.g., 0.65, 0.70) to make video bigger
-       - Decrease (e.g., 0.55, 0.50) to make video smaller
-       Try values between 0.50-0.75 until it fits perfectly */
-    --video-scale: 0.62;
+     /* ADJUST THESE VALUES to fit the video inside the border:
+         - --video-scale-x: horizontal scale (fraction of container width)
+         - --video-scale-y: vertical scale (fraction of container height)
+         - --video-top: top position (percentage) to move the video down/up
+         Example: --video-scale-x:0.80; --video-scale-y:0.70; --video-top:54% */
+     --video-scale-x: 0.90; /* horizontal size */
+     --video-scale-y: 0.75; /* vertical size (smaller -> shorter rectangle) */
+     --video-top: 54%;
 }
 
-/* Live video centered and scaled to show the photobooth frame border */
+/* Live video centered and scaled to show the photobooth frame border.
+   Use the container variables above to tweak shape and vertical placement. */
 #liveVideo {
     position: absolute;
-    top: 50%;
+    top: var(--video-top);
     left: 50%;
     transform: translate(-50%, -50%);
-    width: calc(var(--video-scale) * 100%);
-    height: calc(var(--video-scale) * 100%);
+    /* rectangular sizing: independent horizontal and vertical scale */
+    width: calc(var(--video-scale-x) * 100%);
+    height: calc(var(--video-scale-y) * 100%);
     object-fit: cover;
-    border-radius: 8px; /* Optional: slight rounding for cleaner look */
+    border-radius: 8px;
+    z-index: 1; /* put video behind the decorative frame image */
 }
 
 /* Mirror the live preview so it behaves like a front-facing mirror */
 #liveVideo.mirrored {
     transform: translate(-50%, -50%) scaleX(-1);
     -webkit-transform: translate(-50%, -50%) scaleX(-1);
+}
+
+/* decorative frame image that sits above the video so the border/turtle appears in front */
+.frame-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* preserve frame aspect and show full frame */
+    pointer-events: none; /* allow clicks to pass through */
+    z-index: 3; /* above the video */
 }
 
 /* HIDDEN: Frame overlay used for calculations but not displayed */
