@@ -2,13 +2,17 @@
 body {
     margin: 0;
     padding: 0;
+    display: flex;              /* enable flexbox */
+    justify-content: center;    /* center horizontally */
+    align-items: center;        /* center vertically */
+    min-height: 100vh;          /* full viewport height */
     background-image: url('../assets/turtlebackground.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    min-height: 100vh;
     font-family: Arial, sans-serif;
+
 }
 
 /* Optional: Add overlay for better readability */
@@ -19,82 +23,96 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3); /* Dark overlay */
+    background: rgba(0, 0, 0, 0.3);
     z-index: -1;
-    pointer-events: none; /* Make sure this doesn't interfere */
 }
 
+/* Camera container scales with viewport */
+#camera-container,
 .photobooth-container {
     position: relative;
-    width: 100%;
-    max-width: 1100px;
-    height: 900px;
-    margin: 20px auto;
-    background-image: url('../assets/cameraborder.png');
+    width: 90vw;              /* scales with browser width */
+    max-width: 900px;
+    aspect-ratio: 11 / 9;     /* keeps consistent ratio */
+    margin: 20px auto;        /* centers horizontally */
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Decorative frame background */
+.photobooth-container {
+    background-image: url('../assets/camerabordercropped.png');
     background-color: rgba(255, 255, 255, 0.02);
-    background-size: contain; /* Changed from cover to contain so border shows */
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 12px;
-    padding: 0;
-    overflow: hidden;
-    /* ADJUST THIS VALUE to fit video perfectly inside border:
-       - Increase (e.g., 0.65, 0.70) to make video bigger
-       - Decrease (e.g., 0.55, 0.50) to make video smaller
-       Try values between 0.50-0.75 until it fits perfectly */
-    --video-scale: 0.62;
 }
 
-/* Live video centered and scaled to show the photobooth frame border */
+/* Video fits inside the frame */
 #liveVideo {
     position: absolute;
-    top: 50%;
+    top: 52%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: calc(var(--video-scale) * 100%);
-    height: calc(var(--video-scale) * 100%);
-    object-fit: cover;
-    border-radius: 8px; /* Optional: slight rounding for cleaner look */
+    width: 92%;              /* slightly smaller than container */
+    height: 95%;             /* keeps some padding for the frame edges */
+    object-fit: contain;     /* show full video without cropping */
+    border-radius: 8px;
+    transform: translate(-50%, -50%); /* center it */
+    z-index: 1;
 }
 
-/* Mirror the live preview so it behaves like a front-facing mirror */
+
+/* Mirror option */
 #liveVideo.mirrored {
     transform: translate(-50%, -50%) scaleX(-1);
     -webkit-transform: translate(-50%, -50%) scaleX(-1);
 }
 
-/* HIDDEN: Frame overlay used for calculations but not displayed */
+/* Frame image overlay */
+.frame-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Hidden overlay for calculations */
 .frame-overlay {
     position: absolute;
-    width: 60%; /* Adjusted to match video scale better */
+    width: 60%;
     height: 60%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 16px;
-    /* Removed dashed border - make it invisible */
     border: none;
     box-shadow: none;
     z-index: 5;
     pointer-events: none;
-    opacity: 0; /* Make completely invisible */
+    opacity: 0;
 }
 
-/* Canvas positioning for final photo strip */
+/* Canvas positioning */
 #finalCanvas {
     position: relative;
     z-index: 0;
     width: 100%;
     height: auto;
-    display: none; /* Hidden during live preview */
+    display: none;
 }
 
+/* Controls */
 .controls {
     text-align: center;
-    margin: 20px;
+    margin: 20px auto;
     position: relative;
     z-index: 200;
-    margin-top: -40px; /* Move buttons up - adjust this value as needed */
+    margin-top: px;
 }
 
 button {
@@ -120,6 +138,7 @@ button:disabled {
     transform: none;
 }
 
+/* Countdown timer */
 .countdown-timer {
     display: none;
     position: absolute;
@@ -137,6 +156,7 @@ button:disabled {
     height: 100%;
 }
 
+/* Photo progress indicator */
 .photo-progress {
     position: absolute;
     top: 12px;

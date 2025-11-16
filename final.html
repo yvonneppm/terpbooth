@@ -1,194 +1,193 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Final Photo</title>
-	<link rel="stylesheet" href="css/final.css">
-	<style>
-		body { 
-			display:flex; 
-			flex-direction:column; 
-			align-items:center; 
-			justify-content:center; 
-			min-height:100vh; 
-			margin:0; 
-			padding: 20px;
-			font-family: Arial, sans-serif; 
-			color:#fff;
-			background-image: url('assets/turtlebackground.png');
-			background-size: cover;
-			background-position: center;
-			background-attachment: fixed;
-		}
-		h1 {
-			margin-bottom: 20px;
-			text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-		}
-		.strip-container { 
-			max-width: 500px; 
-			width: 90%; 
-			margin: 16px auto;
-			background: none !important;
-			padding: 0;
-			border-radius: 0;
-			box-shadow: none;
-		}
-		#photoStripImg { 
-			width: 100%; 
-			height: auto; 
-			display: block; 
-			border-radius: 0;
-			box-shadow: none;
-			border: none;
-			background: none !important;
-		}
-		.actions { 
-			margin-top: 20px;
-			text-align: center;
-		}
-		button { 
-			padding: 12px 24px; 
-			font-size: 16px; 
-			margin: 0 8px;
-			background: #4CAF50;
-			color: white;
-			border: none;
-			border-radius: 25px;
-			cursor: pointer;
-			transition: all 0.15s ease;
-		}
-		button:hover {
-			background: #45a049;
-			transform: translateY(-2px);
-		}
-		button#retake {
-			background: #ff6b6b;
-		}
-		button#retake:hover {
-			background: #ff5252;
-		}
-	</style>
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width,initial-scale=1" />
+   <title>Final Photo</title>
+   <link rel="stylesheet" href="css/final.css">
+   <style>
+       body {
+           display:flex;
+           flex-direction:column;
+           align-items:center;
+           justify-content:center;
+           min-height:100vh;
+           margin:0;
+           padding: 20px;
+           font-family: Arial, sans-serif;
+           color:#fff;
+           background-image: url('assets/turtlebackground.png');
+           background-size: cover;
+           background-position: center;
+           background-attachment: fixed;
+       }
+       h1 {
+           margin-bottom: 20px;
+           text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+       }
+       .strip-container {
+           max-width: 400px;
+           width: 90%;
+           margin: 16px auto;
+           background: rgba(255,255,255,0.1);
+           padding: 20px;
+           border-radius: 12px;
+           box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+       }
+       #photoStripImg {
+           width: 100%;
+           height: auto;
+           display: block;
+           border-radius: 8px;
+           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+       }
+       .actions {
+           margin-top: 20px;
+           text-align: center;
+       }
+       button {
+           padding: 12px 24px;
+           font-size: 16px;
+           margin: 0 8px;
+           background: #4CAF50;
+           color: white;
+           border: none;
+           border-radius: 25px;
+           cursor: pointer;
+           transition: all 0.15s ease;
+       }
+       button:hover {
+           background: #45a049;
+           transform: translateY(-2px);
+       }
+       button#retake {
+           background: #ff6b6b;
+       }
+       button#retake:hover {
+           background: #ff5252;
+       }
+   </style>
 </head>
 <body>
-	<h1>Your Photo Strip</h1>
-	<div class="strip-container">
-		<img id="photoStripImg" alt="Photo strip will appear here">
-	</div>
-	<div class="actions">
-		<button id="downloadFinal">Download Photo Strip</button>
-		<button id="retake">Retake Photos</button>
-	</div>
+  
+   <div class="strip-container">
+       <img id="photoStripImg" alt="Photo strip will appear here">
+   </div>
+   <div class="actions">
+       <button id="downloadFinal">Download</button>
+       <button id="retake">Retake</button>
+   </div>
 
-	<script>
-		const FRAME_URL = 'assets/photo_frame.png';
-		const img = document.getElementById('photoStripImg');
-		const rawData = localStorage.getItem('photoStrip');
-		let composedData = null;
 
-		if (!rawData) {
-			img.alt = 'No photo found. Please take photos first.';
-			img.style.display = 'none';
-		} else {
-			const stripImg = new Image();
-			stripImg.onload = () => composeWithFrame(stripImg);
-			stripImg.onerror = () => { 
-				img.alt = 'Failed to load saved photo'; 
-				img.style.display = 'none';
-			};
-			stripImg.src = rawData;
-		}
+   <script>
+       const FRAME_URL = 'assets/photo_frame.png';
+       const img = document.getElementById('photoStripImg');
+       const rawData = localStorage.getItem('photoStrip');
+       let composedData = null;
 
-		function composeWithFrame(stripImg) {
-			const frameImg = new Image();
-			frameImg.crossOrigin = 'anonymous';
-			
-			frameImg.onload = () => {
-				// Use fixed dimensions that match your frame
-				const canvasWidth = 500;
-				const canvasHeight = 1000;
-				
-				const canvas = document.createElement('canvas');
-				canvas.width = canvasWidth;
-				canvas.height = canvasHeight;
-				const ctx = canvas.getContext('2d', {
-					alpha: true,
-					colorSpace: 'srgb',
-					willReadFrequently: false
-				});
 
-				// Start with completely transparent canvas
-				ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+       if (!rawData) {
+           img.alt = 'No photo found. Please take photos first.';
+           img.style.display = 'none';
+       } else {
+           const stripImg = new Image();
+           stripImg.onload = () => composeWithFrame(stripImg);
+           stripImg.onerror = () => {
+               img.alt = 'Failed to load saved photo';
+               img.style.display = 'none';
+           };
+           stripImg.src = rawData;
+       }
 
-				// Calculate how to fit the photo strip in the frame
-				// ADJUST THESE VALUES to control where photos appear in the frame
-				const insetX = 35; // pixels from left/right edges
-				const insetY = 85; // pixels from top/bottom edges
-				
-				const targetWidth = canvasWidth - (insetX * 2);
-				const targetHeight = canvasHeight - (insetY * 2);
-				
-				// Scale strip to fit within target area while maintaining aspect ratio
-				const stripWidth = stripImg.naturalWidth;
-				const stripHeight = stripImg.naturalHeight;
-				const stripAspect = stripWidth / stripHeight;
-				const targetAspect = targetWidth / targetHeight;
-				
-				let drawWidth, drawHeight, drawX, drawY;
-				
-				if (stripAspect > targetAspect) {
-					// Strip is wider - fit to width
-					drawWidth = targetWidth;
-					drawHeight = targetWidth / stripAspect;
-					drawX = insetX;
-					drawY = insetY + (targetHeight - drawHeight) / 2;
-				} else {
-					// Strip is taller - fit to height
-					drawHeight = targetHeight;
-					drawWidth = targetHeight * stripAspect;
-					drawX = insetX + (targetWidth - drawWidth) / 2;
-					drawY = insetY;
-				}
-				
-				// Draw the photo strip
-				ctx.drawImage(stripImg, drawX, drawY, drawWidth, drawHeight);
-				
-				// Draw the frame on top
-				ctx.drawImage(frameImg, 0, 0, canvasWidth, canvasHeight);
 
-				composedData = canvas.toDataURL('image/jpeg', 0.95);
-				img.src = composedData;
-			};
-			
-			frameImg.onerror = () => {
-				console.warn('Frame image not found at: ' + FRAME_URL);
-				console.log('Showing strip without frame');
-				img.src = stripImg.src;
-				composedData = stripImg.src;
-			};
-			
-			frameImg.src = FRAME_URL;
-		}
+       function composeWithFrame(stripImg) {
+           const frameImg = new Image();
+           frameImg.crossOrigin = 'anonymous';
+          
+           frameImg.onload = () => {
+               // Use the frame's dimensions as the canvas size
+               const canvasWidth = 500;
+               const canvasHeight = 1000;
+              
+               const canvas = document.createElement('canvas');
+               canvas.width = canvasWidth;
+               canvas.height = canvasHeight;
+               const ctx = canvas.getContext('2d');
 
-		document.getElementById('downloadFinal').addEventListener('click', () => {
-			const dataToDownload = composedData || rawData;
-			if (!dataToDownload) return alert('No photo to download');
-			
-			const a = document.createElement('a');
-			a.href = dataToDownload;
-			a.download = 'photo-strip-framed.png';
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-		});
 
-		document.getElementById('retake').addEventListener('click', () => {
-			localStorage.removeItem('photoStrip');
-			localStorage.removeItem('photo1');
-			localStorage.removeItem('photo2');
-			localStorage.removeItem('photo3');
-			window.location.href = 'camera.html';
-		});
-	</script>
+               // Draw photo strip first, centered and filling the canvas
+               const stripWidth = stripImg.naturalWidth;
+               const stripHeight = stripImg.naturalHeight;
+              
+               // Calculate scaling to fit strip inside frame area
+               // Assuming frame has a transparent center - adjust these percentages based on your frame
+               const frameInsetPercent = 0.05; // 5% inset from edges (adjust as needed)
+               const targetWidth = canvasWidth * (1 - frameInsetPercent * 2);
+               const targetHeight = canvasHeight * (1 - frameInsetPercent * 2);
+              
+               // Scale strip to fit within target area while maintaining aspect ratio
+               const stripAspect = stripWidth / stripHeight;
+               const targetAspect = targetWidth / targetHeight;
+              
+               let drawWidth, drawHeight, drawX, drawY;
+              
+               if (stripAspect > targetAspect) {
+                   // Strip is wider - fit to width
+                   drawWidth = targetWidth;
+                   drawHeight = targetWidth / stripAspect;
+               } else {
+                   // Strip is taller - fit to height
+                   drawHeight = targetHeight;
+                   drawWidth = targetHeight * stripAspect;
+               }
+              
+               // Center the strip
+               drawX = (canvasWidth - drawWidth) / 2;
+               drawY = (canvasHeight - drawHeight) / 2;
+              
+               // Draw the photo strip
+               ctx.drawImage(stripImg, drawX, drawY, drawWidth, drawHeight);
+              
+               // Draw the frame on top
+               ctx.drawImage(frameImg, 0, 0, canvasWidth, canvasHeight);
+
+
+               composedData = canvas.toDataURL('image/png');
+               img.src = composedData;
+           };
+          
+           frameImg.onerror = () => {
+               console.warn('Frame image not found, showing strip without frame');
+               img.src = stripImg.src;
+               composedData = stripImg.src;
+           };
+          
+           frameImg.src = FRAME_URL;
+       }
+
+
+       document.getElementById('downloadFinal').addEventListener('click', () => {
+           const dataToDownload = composedData || rawData;
+           if (!dataToDownload) return alert('No photo to download');
+          
+           const a = document.createElement('a');
+           a.href = dataToDownload;
+           a.download = 'photo-strip-framed.png';
+           document.body.appendChild(a);
+           a.click();
+           a.remove();
+       });
+
+
+       document.getElementById('retake').addEventListener('click', () => {
+           localStorage.removeItem('photoStrip');
+           localStorage.removeItem('photo1');
+           localStorage.removeItem('photo2');
+           localStorage.removeItem('photo3');
+           window.location.href = 'camera.html';
+       });
+   </script>
 </body>
 </html>
+
+
