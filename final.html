@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Final Photo</title>
+	<link rel="stylesheet" href="css/final.css">
+	<style>
+		body { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; font-family: Arial, sans-serif; background:#111; color:#fff }
+		.strip { max-width:360px; width:90%; margin:16px auto; }
+		img { width:100%; height:auto; display:block; border-radius:8px; }
+		.actions { margin-top:12px; }
+		button { padding:10px 16px; font-size:16px; margin:0 8px; }
+	</style>
+</head>
+<body>
+	<h1>Your Photo Strip</h1>
+	<div class="strip">
+		<img id="photoStripImg" alt="Photo strip will appear here">
+	</div>
+	<div class="actions">
+		<button id="downloadFinal">Download</button>
+		<button id="retake">Retake</button>
+	</div>
+
+	<script>
+		const img = document.getElementById('photoStripImg');
+		const data = localStorage.getItem('photoStrip');
+		if (data) img.src = data;
+		else img.alt = 'No photo found';
+
+		document.getElementById('downloadFinal').addEventListener('click', () => {
+			const data = localStorage.getItem('photoStrip');
+			if (!data) return alert('No photo to download');
+			const a = document.createElement('a');
+			a.href = data;
+			a.download = 'photo-strip.png';
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+		});
+
+		document.getElementById('retake').addEventListener('click', () => {
+			// clear saved photos and go back to camera
+			localStorage.removeItem('photoStrip');
+			localStorage.removeItem('photo1');
+			localStorage.removeItem('photo2');
+			localStorage.removeItem('photo3');
+			window.location.href = 'camera.html';
+		});
+	</script>
+</body>
+</html>

@@ -3,22 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-<<<<<<< HEAD
     <title>Camera</title>
     <link rel="stylesheet" href="css/camera.css" />
-</head>
-<body>
-    <div class="photobooth-container" id="booth">
-    <div class="bubble-container"></div>
-    <div class="countdown-timer">3</div>
-    <canvas id="finalCanvas" width="1176" height="1470"></canvas>
-    <video id="liveVideo" autoplay playsinline muted></video>
-    <!-- overlay frame so user can see framing area while taking photos -->
-    <div class="frame-overlay" aria-hidden="true"></div>
-    
-=======
-    <title>Photo Capture</title>
-    <link rel="stylesheet" href="StyleSheets/camera.css" />
 </head>
 <body>
     <div class="photobooth-container" id="booth">
@@ -26,18 +12,17 @@
         <div class="countdown-timer">3</div>
         <canvas id="finalCanvas" width="1176" height="1470"></canvas>
         <video id="liveVideo" autoplay playsinline muted></video>
->>>>>>> af5472c4292870b1b7d8ac03b463a808e8eb15d7
+        <!-- overlay frame so user can see framing area while taking photos -->
+        <div class="frame-overlay" aria-hidden="true"></div>
+        <!-- progress indicator (Photo 1 of 3) -->
+        <div class="photo-progress" aria-live="polite">Photo 1 of 3</div>
     </div>
 
     <div class="controls">
-        <button id="takePhoto">Capture Photo 1/3</button>
-        <button id="readyButton" disabled style="display: none;">Add to Frames</button>
+        <button id="takePhoto">SNAP</button>
+        <button id="readyButton" disabled style="display: none;">Ready</button>
     </div>
 
-<<<<<<< HEAD
     <script src="js/camera.js"></script>
-=======
-    <script src="Javascripts/camera.js"></script>
->>>>>>> af5472c4292870b1b7d8ac03b463a808e8eb15d7
 </body>
 </html>

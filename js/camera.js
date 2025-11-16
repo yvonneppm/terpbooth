@@ -1,41 +1,23 @@
 // constants
-const WIDTH = 1176, HEIGHT = 1470;
+const WIDTH = 1100, HEIGHT = 900;
 const FRAME_COUNT = 3; // number of photos to take
 const FRAME_H = Math.floor(HEIGHT / FRAME_COUNT);
 
-// dom elements
-const elements = {
-  video: document.getElementById('liveVideo'),
-  canvas: document.getElementById('finalCanvas'),
-  ctx: document.getElementById('finalCanvas').getContext('2d'),
-  takePhotoBtn: document.getElementById('takePhoto'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  countdownEl: document.querySelector('.countdown-timer')
-};
+// dom elements (will be initialized when DOM is ready)
+let elements = {};
 
 let photoStage = 0; // 0..FRAME_COUNT-1, then done
 let frames = []; // store each captured frame as dataURL
 
-// move video to frame position (top, middle, bottom depending on index)
-const moveVideoToFrame = i => {
-  const { video } = elements;
-  video.style.display = 'block';
-  const topPercent = (i * 100) / FRAME_COUNT;
-  const heightPercent = 100 / FRAME_COUNT;
-  video.style.top = topPercent + '%';
-  video.style.left = '0';
-  video.style.width = '100%';
-  video.style.height = heightPercent + '%';
-};
-
 // keep the live video fixed and filling the container
 const setVideoFull = () => {
   const { video } = elements;
+  if (!video) return;
   video.style.display = 'block';
-  video.style.top = '0';
-  video.style.left = '0';
-  video.style.width = '100%';
-  video.style.height = '100%';
+  video.style.top = '';
+  video.style.left = '';
+  video.style.width = '';
+  video.style.height = '';
 };
 
 // countdown
@@ -55,28 +37,55 @@ const startCountdown = callback => {
   }, 1000);
 };
 
+// update the small progress indicator (Photo X of N)
+const updateProgress = () => {
+  const el = document.querySelector('.photo-progress');
+  if (!el) return;
+  const next = Math.min(photoStage + 1, FRAME_COUNT);
+  el.textContent = `Photo ${next} of ${FRAME_COUNT}`;
+};
+
 // capture photo
 const capturePhoto = () => {
-  const { video, ctx, takePhotoBtn } = elements;
-  const yOffset = photoStage * FRAME_H;
+  const { video, takePhotoBtn } = elements;
   const vW = video.videoWidth, vH = video.videoHeight;
-  const targetAspect = WIDTH / FRAME_H, vAspect = vW / vH;
+  
+  // Use center crop with consistent aspect ratio
+  const targetAspect = WIDTH / FRAME_H;
+  const vAspect = vW / vH;
+  
   let sx, sy, sw, sh;
+  if (vAspect > targetAspect) {
+    // Video is wider - crop sides
+    sh = vH;
+    sw = vH * targetAspect;
+    sx = (vW - sw) / 2;
+    sy = 0;
+  } else {
+    // Video is taller - crop top/bottom
+    sw = vW;
+    sh = vW / targetAspect;
+    sx = 0;
+    sy = (vH - sh) / 2;
+  }
 
-  if (vAspect > targetAspect) { sh = vH; sw = vH * targetAspect; sx = (vW - sw) / 2; sy = 0; }
-  else { sw = vW; sh = vW / targetAspect; sx = 0; sy = (vH - sh) / 2; }
-
-  // capture this frame into an offscreen canvas and save as dataURL
+  // capture this frame into an offscreen canvas
   const tmp = document.createElement('canvas');
   tmp.width = WIDTH;
   tmp.height = FRAME_H;
   const tctx = tmp.getContext('2d');
-  // draw non-mirrored for saved images so they appear natural
+  
+  // draw mirrored into the offscreen canvas
+  tctx.save();
+  tctx.translate(WIDTH, 0);
+  tctx.scale(-1, 1);
   tctx.drawImage(video, sx, sy, sw, sh, 0, 0, WIDTH, FRAME_H);
+  tctx.restore();
+  
   const dataURL = tmp.toDataURL('image/png');
   frames.push(dataURL);
 
-  // save each individual photo separately in localStorage (photo1, photo2, ...)
+  // save each individual photo separately in localStorage
   try {
     localStorage.setItem(`photo${photoStage + 1}`, dataURL);
   } catch (e) {
@@ -85,8 +94,8 @@ const capturePhoto = () => {
 
   photoStage++;
   if (photoStage < FRAME_COUNT) {
-    // keep preview fixed; simply re-enable the capture button for next shot
     takePhotoBtn.disabled = false;
+    updateProgress();
   } else {
     finalizePhotoStrip();
   }
@@ -94,10 +103,22 @@ const capturePhoto = () => {
 
 // finalize photo strip
 const finalizePhotoStrip = () => {
-  const { video, ctx, canvas } = elements;
+  const { video, canvas, booth } = elements;
   video.style.display = 'none';
+  
+  // Set canvas to proper photo strip dimensions
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  const ctx = canvas.getContext('2d');
+  
+  // Show canvas
+  if (canvas) canvas.style.display = 'block';
+  if (booth) {
+    booth.style.height = 'auto';
+    booth.style.overflow = 'visible';
+  }
 
-  // load each captured frame into an Image and draw in order
+  // load each captured frame into an Image
   const imgPromises = frames.map(src => new Promise((res, rej) => {
     const img = new Image();
     img.onload = () => res(img);
@@ -106,34 +127,46 @@ const finalizePhotoStrip = () => {
   }));
 
   Promise.all(imgPromises).then(images => {
-    // clear canvas then draw each image at its slot
+    // Clear canvas
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    
+    // Draw each image stacked vertically with small gaps
+    const gap = 10; // Gap between photos
+    const photoHeight = (HEIGHT - (gap * (FRAME_COUNT - 1))) / FRAME_COUNT;
+    
     images.forEach((img, idx) => {
-      ctx.save();
-      // mirror final strip so it matches previous behavior
-      ctx.translate(WIDTH, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(img, 0, 0, WIDTH, FRAME_H, 0, idx * FRAME_H, WIDTH, FRAME_H);
-      ctx.restore();
+      const yPos = idx * (photoHeight + gap);
+      ctx.drawImage(img, 0, yPos, WIDTH, photoHeight);
     });
 
-    // draw decorative frame overlay if available
+    // Try to draw decorative frame overlay if available
     const frame = new Image();
     frame.src = 'Assets/fish-photobooth/camerapage/frame.png';
+    
+    const finishComposing = () => {
+      try { 
+        localStorage.setItem('photoStrip', canvas.toDataURL('image/png')); 
+      } catch (e) { 
+        console.warn('Could not save photoStrip', e); 
+      }
+      
+      // Show the ready button
+      const readyBtn = document.getElementById('readyButton');
+      if (readyBtn) {
+        readyBtn.style.display = 'inline-block';
+        readyBtn.disabled = false;
+      }
+    };
+    
     frame.onload = () => {
       ctx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
-      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-      setTimeout(() => window.location.href = 'final.html', 50);
+      finishComposing();
     };
-    frame.onerror = () => {
-      // even if frame missing, save and continue
-      localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-      setTimeout(() => window.location.href = 'final.html', 50);
-    };
-    frame.complete && frame.onload();
+    frame.onerror = finishComposing;
+    if (frame.complete) frame.onload();
+    
   }).catch(err => {
     console.error('Error loading captured images', err);
-    // fallback: save whatever is on canvas
     localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
     setTimeout(() => window.location.href = 'final.html', 50);
   });
@@ -151,9 +184,26 @@ const downloadPhoto = () => {
 
 // setup camera
 const setupCamera = () => {
-  navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 2560 }, height: { ideal: 1440 }, facingMode: 'user' }, audio: false })
-    .then(stream => { elements.video.srcObject = stream; elements.video.play(); setVideoFull(); })
-    .catch(err => alert('Camera access failed: ' + err));
+  navigator.mediaDevices.getUserMedia({ 
+    video: { 
+      width: { ideal: 1920 }, 
+      height: { ideal: 1080 }, 
+      facingMode: 'user' 
+    }, 
+    audio: false 
+  })
+  .then(stream => { 
+    elements.video.srcObject = stream; 
+    elements.video.play(); 
+    setVideoFull();
+    
+    // mirror the live preview
+    if (elements.video && !elements.video.classList.contains('mirrored')) {
+      elements.video.classList.add('mirrored');
+    }
+    updateProgress(); 
+  })
+  .catch(err => alert('Camera access failed: ' + err));
 };
 
 // setup events
@@ -162,26 +212,46 @@ const setupEventListeners = () => {
 
   if (takePhotoBtn) {
     takePhotoBtn.addEventListener('click', () => {
+      console.log('Capture button clicked, stage:', photoStage);
       if (photoStage >= FRAME_COUNT) return;
       takePhotoBtn.disabled = true;
       startCountdown(capturePhoto);
     });
   }
 
-  // downloadBtn is optional on this page; only attach if present
   if (downloadBtn) {
     downloadBtn.addEventListener('click', downloadPhoto);
   }
 
+  if (elements.readyButton) {
+    elements.readyButton.addEventListener('click', () => {
+      window.location.href = 'final.html';
+    });
+  }
+
   window.addEventListener('resize', () => {
-    // keep the live preview full-size on resize
     setVideoFull();
   });
 };
 
 // initialize photo booth
-const initPhotoBooth = () => { setupCamera(); setupEventListeners(); };
-initPhotoBooth();
+const initPhotoBooth = () => {
+  elements = {
+    video: document.getElementById('liveVideo'),
+    canvas: document.getElementById('finalCanvas'),
+    takePhotoBtn: document.getElementById('takePhoto'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    readyButton: document.getElementById('readyButton'),
+    countdownEl: document.querySelector('.countdown-timer'),
+    booth: document.getElementById('booth')
+  };
+
+  setupCamera();
+  setupEventListeners();
+};
+
+// wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', initPhotoBooth);
 
 // logo redirect
 document.addEventListener('DOMContentLoaded', () => {
