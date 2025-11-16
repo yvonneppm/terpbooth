@@ -1,0 +1,14 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    /* path is relative to this CSS file (css/), so go up one level */
+    background-image: url('../assets/turtlebackground.png');
+    background-size: cover;       /* makes it fill the page */
+    background-position: center;  /* centers the image */
+    background-repeat: no-repeat; /* no repeating tiles */
+    font-family: 'Chalkduster', fantasy;
+}

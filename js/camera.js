@@ -1,7 +1,6 @@
 // constants
 const WIDTH = 1100, HEIGHT = 900;
 const FRAME_COUNT = 3; // number of photos to take
-const FRAME_H = Math.floor(HEIGHT / FRAME_COUNT);
 
 // dom elements (will be initialized when DOM is ready)
 let elements = {};
@@ -14,11 +13,18 @@ const setVideoFull = () => {
   const { video } = elements;
   if (!video) return;
   video.style.display = 'block';
-  video.style.top = '';
-  video.style.left = '';
-  video.style.width = '';
-  video.style.height = '';
+  const setVideoFull = () => {
+  const { video } = elements;
+  if (!video) return;
+  video.style.display = 'block';
 };
+
+};
+window.addEventListener('resize', () => {
+  setVideoFull(); // just triggers display; CSS handles scaling
+});
+
+
 
 // countdown
 const startCountdown = callback => {
@@ -45,10 +51,12 @@ const updateProgress = () => {
   el.textContent = `Photo ${next} of ${FRAME_COUNT}`;
 };
 
-// capture photo
+
 const capturePhoto = () => {
   const { video, takePhotoBtn } = elements;
   const vW = video.videoWidth, vH = video.videoHeight;
+  
+  const FRAME_H = Math.floor(HEIGHT / FRAME_COUNT);
   
   // Use center crop with consistent aspect ratio
   const targetAspect = WIDTH / FRAME_H;
@@ -124,8 +132,8 @@ const finalizePhotoStrip = () => {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     
     // Draw each image stacked vertically with small gaps
-    const gap = 10; // Gap between photos
-    const photoHeight = (HEIGHT - (gap * (FRAME_COUNT - 1))) / FRAME_COUNT;
+    const gap = 20; // Gap between photos
+    const photoHeight = HEIGHT / 2.5;
     
     images.forEach((img, idx) => {
       const yPos = idx * (photoHeight + gap);
@@ -134,7 +142,7 @@ const finalizePhotoStrip = () => {
 
     // Try to draw decorative frame overlay if available
     const frame = new Image();
-    frame.src = 'Assets/fish-photobooth/camerapage/frame.png';
+    //frame.src = 'Assets/fish-photobooth/camerapage/frame.png';
     
     const finishComposing = () => {
       try {
@@ -148,12 +156,12 @@ const finalizePhotoStrip = () => {
       }, 80);
     };
     
-    frame.onload = () => {
+    /*frame.onload = () => {
       ctx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
       finishComposing();
     };
     frame.onerror = finishComposing;
-    if (frame.complete) frame.onload();
+    if (frame.complete) frame.onload();*/
     
   }).catch(err => {
     console.error('Error loading captured images', err);
