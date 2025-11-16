@@ -2,7 +2,7 @@
 const WIDTH = 1100;          // width of photo strip
 const HEIGHT = 1600;         // enough height for 3 tall photos + gaps
 const FRAME_COUNT = 3;       // number of photos to take
-const GAP = 20;              // gap between stacked photos
+const GAP = 15;              // gap between stacked photos
 
 let elements = {};
 let photoStage = 0;
@@ -136,6 +136,7 @@ const capturePhoto = () => {
     finalizePhotoStrip();
   }
 };
+
 
 // Robust finalizePhotoStrip (replace your old finalize)
 const finalizePhotoStrip = () => {

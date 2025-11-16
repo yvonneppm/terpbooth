@@ -41,7 +41,6 @@ body::before {
 
 /* Decorative frame background */
 .photobooth-container {
-  
     background-image: url('../assets/camerabordercropped.png');
     background-color: rgba(255, 255, 255, 0.02);
     background-size: contain;

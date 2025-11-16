@@ -87,37 +87,94 @@
     <button id="downloadFinal">Download</button>
     <button id="retake">Retake</button>
   </div>
+<script>
+  const img = document.getElementById('photoStripImg');
+  const rawData = localStorage.getItem('photoStrip');
 
-  <script>
-    const img = document.getElementById('photoStripImg');
-    const rawData = localStorage.getItem('photoStrip');
+  if (rawData) {
+    img.src = rawData; // show the latest saved strip
+  } else {
+    img.alt = 'No photo found. Please take photos first.';
+    img.style.display = 'none';
+  }
 
-    if (rawData) {
-      img.src = rawData; // show the latest saved strip
-    } else {
-      img.alt = 'No photo found. Please take photos first.';
-      img.style.display = 'none';
+  // ⭐⭐ REPLACE YOUR OLD DOWNLOAD CODE WITH THIS ⭐⭐
+ /*document.getElementById('downloadFinal').addEventListener('click', () => {
+  const target = document.querySelector('.strip-container');
+
+  html2canvas(target, {
+    backgroundColor: null,          // preserve transparency
+    scale: window.devicePixelRatio, // match rendered pixels
+    useCORS: true                   // if images are loaded from other sources
+  }).then(canvas => {
+    // Convert canvas to a download link
+    canvas.toBlob(blob => {
+      const link = document.createElement('a');
+      link.download = 'photobooth_print.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href); // clean up memory
+    }, 'image/png');
+  }).catch(err => {
+    console.error('Error creating image:', err);
+  });
+});*/
+
+document.getElementById('downloadFinal').addEventListener('click', () => {
+  const target = document.querySelector('.strip-container');
+
+  html2canvas(target, {
+    backgroundColor: null,          // preserve transparency
+    scale: window.devicePixelRatio,
+    useCORS: true,
+    onclone: (clonedDoc) => {
+      const photo = clonedDoc.getElementById('photoStripImg');
+      photo.style.width = '93%';
+      photo.style.height = '75%';
+      photo.style.top = '43%';
+      photo.style.left = '51%';
+      photo.style.objectFit = 'contain';
+
+      // Make the container fully transparent
+      const container = clonedDoc.querySelector('.strip-container');
+      container.style.background = 'transparent';
+      container.style.boxShadow = 'none'; // optional: remove shadow
+
+      clonedDoc.body.style.background = 'transparent';
     }
+  }).then(canvas => {
+    canvas.toBlob(blob => {
+      const link = document.createElement('a');
+      link.download = 'final-photo.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }, 'image/png');
+  });
+});
 
-    document.getElementById('downloadFinal').addEventListener('click', () => {
-      const latest = localStorage.getItem('photoStrip');
-      if (!latest) return alert('No photo to download');
-      const a = document.createElement('a');
-      a.href = latest;
-      a.download = 'photo-strip.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    });
 
-    document.getElementById('retake').addEventListener('click', () => {
-      localStorage.removeItem('photoStrip');
-      localStorage.removeItem('photo1');
-      localStorage.removeItem('photo2');
-      localStorage.removeItem('photo3');
-      window.location.href = './camera.html';
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
     });
+  }
+
+  // Retake stays the same:
+  document.getElementById('retake').addEventListener('click', () => {
+    localStorage.removeItem('photoStrip');
+    localStorage.removeItem('photo1');
+    localStorage.removeItem('photo2');
+    localStorage.removeItem('photo3');
+    window.location.href = './camera.html';
+  });
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
 
