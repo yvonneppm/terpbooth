@@ -1,4 +1,4 @@
-#The TerpBooth
+#The TerpBooth#
 
 The TerpBooth is a UMD-themed digital photobooth that lets users take photos directly from their browser, place them inside custom UMD-style photo frames, and download the final image. Built with HTML, CSS, and JavaScript, it recreates the interactive photobooth experience in a simple and accessible web app.
 
