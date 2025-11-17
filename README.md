@@ -2,7 +2,7 @@
 
 The TerpBooth is a UMD-themed digital photobooth that lets users take photos directly from their browser, place them inside custom UMD-style photo frames, and download the final image. Built with HTML, CSS, and JavaScript, it recreates the interactive photobooth experience in a simple and accessible web app.
 
-⭐ Features
+## Features
 
 📸 Live camera preview using the browser’s getUserMedia API
 
@@ -16,7 +16,7 @@ The TerpBooth is a UMD-themed digital photobooth that lets users take photos dir
 
 🖥️ Works fully in-browser — no backend needed
 
-🛠️ How We Built It
+## How We Built It
 
 TerpBooth is built using:
 
@@ -32,17 +32,17 @@ Local assets — custom UMD-themed frames and UI graphics
 
 We kept the project lightweight and dependency-free so it can run in any modern browser.
 
-🚧 Challenges We Ran Into
+## Challenges We Ran Into
 
 One challenge was positioning images inside the photo frame borders. Different screen sizes changed how the camera feed scaled, so getting the pictures to sit perfectly inside the design took careful CSS adjustments.
 
 Another issue was the download format. When exporting using <canvas>, the final image sometimes appeared squished or stretched, depending on the aspect ratio. Fixing this required us to manually calculate scaling, preserve proportions, and ensure the canvas size matched the design exactly.
 
-🎉 Accomplishments We’re Proud Of
+## Accomplishments We’re Proud Of
 
 We’re proud that we built a fully functional photobooth from scratch in a short period — including camera capture, frame graphics, animations, and a clean UI. The project feels fun, interactive, and very UMD-coded.
 
-📚 What We Learned
+## What We Learned
 
 How to work with browser cameras and real-time video
 
